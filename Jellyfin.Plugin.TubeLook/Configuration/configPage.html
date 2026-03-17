@@ -5,33 +5,65 @@
     <title>TubeLook</title>
 </head>
 <body>
-    <div id="TubeLookConfigPage" data-role="page" class="page type-interior pluginConfigurationPage" data-require="emby-input,emby-button,emby-select,emby-checkbox">
+    <div id="TubeLookConfigPage" data-role="page" class="page type-interior pluginConfigurationPage" data-require="emby-input,emby-button,emby-checkbox">
         <div data-role="content">
             <div class="content-primary">
+                <h1>TubeLook Settings</h1>
                 <form id="TubeLookConfigForm">
-                    <div class="selectContainer">
-                        <label class="selectLabel" for="Options">Several Options</label>
-                        <select is="emby-select" id="Options" name="Options" class="emby-select-withcolor emby-select">
-                            <option id="optOneOption" value="OneOption">One Option</option>
-                            <option id="optAnotherOption" value="AnotherOption">Another Option</option>
-                        </select>
-                    </div>
                     <div class="inputContainer">
-                        <label class="inputLabel inputLabelUnfocused" for="AnInteger">An Integer</label>
-                        <input id="AnInteger" name="AnInteger" type="number" is="emby-input" min="0" />
-                        <div class="fieldDescription">A Description</div>
+                        <label class="inputLabel inputLabelUnfocused" for="PlayButtonSize">Play Button Size (px)</label>
+                        <input id="PlayButtonSize" name="PlayButtonSize" type="number" is="emby-input" min="60" max="150" step="5" />
                     </div>
+                    
+                    <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="SkipButtonSize">Skip Button Size (px)</label>
+                        <input id="SkipButtonSize" name="SkipButtonSize" type="number" is="emby-input" min="40" max="100" step="5" />
+                    </div>
+                    
+                    <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="RewindSeconds">Rewind Seconds</label>
+                        <input id="RewindSeconds" name="RewindSeconds" type="number" is="emby-input" min="5" max="60" step="5" />
+                    </div>
+                    
+                    <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="ForwardSeconds">Forward Seconds</label>
+                        <input id="ForwardSeconds" name="ForwardSeconds" type="number" is="emby-input" min="5" max="60" step="5" />
+                    </div>
+                    
+                    <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="AutoHideDelay">Auto-hide Delay (ms)</label>
+                        <input id="AutoHideDelay" name="AutoHideDelay" type="number" is="emby-input" min="1000" max="10000" step="500" />
+                    </div>
+                    
                     <div class="checkboxContainer checkboxContainer-withDescription">
                         <label class="emby-checkbox-label">
-                            <input id="TrueFalseSetting" name="TrueFalseCheckBox" type="checkbox" is="emby-checkbox" />
-                            <span>A Checkbox</span>
+                            <input id="EnableDoubleTap" name="EnableDoubleTap" type="checkbox" is="emby-checkbox" />
+                            <span>Enable Double-tap to Skip</span>
                         </label>
                     </div>
-                    <div class="inputContainer">
-                        <label class="inputLabel inputLabelUnfocused" for="AString">A String</label>
-                        <input id="AString" name="AString" type="text" is="emby-input" />
-                        <div class="fieldDescription">Another Description</div>
+                    
+                    <div class="checkboxContainer checkboxContainer-withDescription">
+                        <label class="emby-checkbox-label">
+                            <input id="EnableGestures" name="EnableGestures" type="checkbox" is="emby-checkbox" />
+                            <span>Enable Gesture Controls</span>
+                        </label>
                     </div>
+                    
+                    <div class="checkboxContainer checkboxContainer-withDescription">
+                        <label class="emby-checkbox-label">
+                            <input id="ShowVisibleSkipButtons" name="ShowVisibleSkipButtons" type="checkbox" is="emby-checkbox" />
+                            <span>Show Visible Skip Buttons (disabled by default)</span>
+                        </label>
+                        <div class="fieldDescription">
+                            When disabled, skip buttons are hidden and triggered via double-tap gestures only (YouTube-style). When enabled, skip buttons are visible on screen.
+                        </div>
+                    </div>
+                    
+                    <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="ButtonOpacity">Button Opacity</label>
+                        <input id="ButtonOpacity" name="ButtonOpacity" type="number" is="emby-input" min="0.3" max="1.0" step="0.1" />
+                    </div>
+                    
                     <div>
                         <button is="emby-button" type="submit" class="raised button-submit block emby-button">
                             <span>Save</span>
@@ -49,10 +81,15 @@
                 .addEventListener('pageshow', function() {
                     Dashboard.showLoadingMsg();
                     ApiClient.getPluginConfiguration(TubeLookConfig.pluginUniqueId).then(function (config) {
-                        document.querySelector('#Options').value = config.Options;
-                        document.querySelector('#AnInteger').value = config.AnInteger;
-                        document.querySelector('#TrueFalseSetting').checked = config.TrueFalseSetting;
-                        document.querySelector('#AString').value = config.AString;
+                        document.querySelector('#PlayButtonSize').value = config.PlayButtonSize;
+                        document.querySelector('#SkipButtonSize').value = config.SkipButtonSize;
+                        document.querySelector('#RewindSeconds').value = config.RewindSeconds;
+                        document.querySelector('#ForwardSeconds').value = config.ForwardSeconds;
+                        document.querySelector('#AutoHideDelay').value = config.AutoHideDelay;
+                        document.querySelector('#EnableDoubleTap').checked = config.EnableDoubleTap;
+                        document.querySelector('#EnableGestures').checked = config.EnableGestures;
+                        document.querySelector('#ShowVisibleSkipButtons').checked = config.ShowVisibleSkipButtons;
+                        document.querySelector('#ButtonOpacity').value = config.ButtonOpacity;
                         Dashboard.hideLoadingMsg();
                     });
                 });
@@ -61,10 +98,16 @@
                 .addEventListener('submit', function(e) {
                 Dashboard.showLoadingMsg();
                 ApiClient.getPluginConfiguration(TubeLookConfig.pluginUniqueId).then(function (config) {
-                    config.Options = document.querySelector('#Options').value;
-                    config.AnInteger = document.querySelector('#AnInteger').value;
-                    config.TrueFalseSetting = document.querySelector('#TrueFalseSetting').checked;
-                    config.AString = document.querySelector('#AString').value;
+                    config.PlayButtonSize = parseInt(document.querySelector('#PlayButtonSize').value);
+                    config.SkipButtonSize = parseInt(document.querySelector('#SkipButtonSize').value);
+                    config.RewindSeconds = parseInt(document.querySelector('#RewindSeconds').value);
+                    config.ForwardSeconds = parseInt(document.querySelector('#ForwardSeconds').value);
+                    config.AutoHideDelay = parseInt(document.querySelector('#AutoHideDelay').value);
+                    config.EnableDoubleTap = document.querySelector('#EnableDoubleTap').checked;
+                    config.EnableGestures = document.querySelector('#EnableGestures').checked;
+                    config.ShowVisibleSkipButtons = document.querySelector('#ShowVisibleSkipButtons').checked;
+                    config.ButtonOpacity = parseFloat(document.querySelector('#ButtonOpacity').value);
+                    
                     ApiClient.updatePluginConfiguration(TubeLookConfig.pluginUniqueId, config).then(function (result) {
                         Dashboard.processPluginConfigurationUpdateResult(result);
                     });

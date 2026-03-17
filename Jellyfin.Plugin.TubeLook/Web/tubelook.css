@@ -1,0 +1,272 @@
+/* Only apply on mobile devices */
+@media (max-width: 768px), (pointer: coarse) {
+    
+    /* ========================================
+       1. PLAY/PAUSE BUTTON - CENTER, LARGE
+       ======================================== */
+    .videoPlayerContainer .btnPlayPause {
+        /* Position in center */
+        position: absolute !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        
+        /* Size from config (default 90px) */
+        width: var(--tubelook-play-size, 90px) !important;
+        height: var(--tubelook-play-size, 90px) !important;
+        
+        /* Style */
+        background: rgba(0, 0, 0, var(--tubelook-opacity, 0.7)) !important;
+        border-radius: 50% !important;
+        border: 3px solid rgba(255, 255, 255, 0.3) !important;
+        
+        /* Animation */
+        transition: opacity 0.3s ease, transform 0.2s ease !important;
+        z-index: 1000 !important;
+    }
+    
+    .videoPlayerContainer .btnPlayPause:active {
+        transform: translate(-50%, -50%) scale(0.95) !important;
+    }
+    
+    .videoPlayerContainer .btnPlayPause svg,
+    .videoPlayerContainer .btnPlayPause .material-icons {
+        font-size: calc(var(--tubelook-play-size, 90px) * 0.5) !important;
+    }
+    
+    /* Hide play button in bottom controls */
+    .videoControls .btnPlayPause {
+        display: none !important;
+    }
+    
+    /* ========================================
+       2. SKIP BUTTONS - HIDDEN BY DEFAULT
+       (YouTube-style: gesture-triggered only)
+       ======================================== */
+    
+    /* Hide skip buttons by default - they're triggered via double-tap */
+    .videoPlayerContainer .btnRewind,
+    .videoPlayerContainer .btnFastForward {
+        display: none !important;
+    }
+    
+    /* Show visible skip buttons only if enabled in config */
+    body.tubelook-visible-skip-buttons .videoPlayerContainer .btnRewind,
+    body.tubelook-visible-skip-buttons .videoPlayerContainer .btnFastForward {
+        display: flex !important;
+        position: absolute !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+        
+        width: var(--tubelook-skip-size, 60px) !important;
+        height: var(--tubelook-skip-size, 60px) !important;
+        
+        background: rgba(0, 0, 0, var(--tubelook-opacity, 0.7)) !important;
+        border-radius: 50% !important;
+        
+        transition: opacity 0.3s ease !important;
+        z-index: 1000 !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+    
+    body.tubelook-visible-skip-buttons .videoPlayerContainer .btnRewind {
+        left: calc(50% - var(--tubelook-play-size, 90px) - var(--tubelook-skip-size, 60px) - 20px) !important;
+    }
+    
+    body.tubelook-visible-skip-buttons .videoPlayerContainer .btnFastForward {
+        right: calc(50% - var(--tubelook-play-size, 90px) - var(--tubelook-skip-size, 60px) - 20px) !important;
+    }
+    
+    /* Hide skip buttons from bottom controls */
+    .videoControls .btnRewind,
+    .videoControls .btnFastForward {
+        display: none !important;
+    }
+    
+    /* ========================================
+       3. SKIP INTERVAL LABELS (visible mode)
+       ======================================== */
+    body.tubelook-visible-skip-buttons .videoPlayerContainer .btnRewind::after,
+    body.tubelook-visible-skip-buttons .videoPlayerContainer .btnFastForward::after {
+        content: attr(data-skip-seconds) "s";
+        position: absolute;
+        bottom: -25px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 12px;
+        color: white;
+        white-space: nowrap;
+    }
+    
+    /* ========================================
+       4. YOUTUBE-STYLE SKIP INDICATOR
+       (Animated text + arrow on double-tap)
+       ======================================== */
+    .tubelook-skip-indicator {
+        position: absolute !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 8px !important;
+        z-index: 1001 !important;
+        pointer-events: none !important;
+    }
+    
+    .tubelook-skip-indicator.left {
+        left: 15% !important;
+    }
+    
+    .tubelook-skip-indicator.right {
+        right: 15% !important;
+    }
+    
+    /* Skip text (e.g., "-10" or "+30") */
+    .tubelook-skip-text {
+        font-size: 56px !important;
+        font-weight: bold !important;
+        color: white !important;
+        text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.6) !important;
+        animation: skipTextFadeIn 0.2s ease !important;
+    }
+    
+    /* Animated skip arrow */
+    .tubelook-skip-arrow {
+        width: 80px !important;
+        height: 48px !important;
+        fill: white !important;
+        filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5)) !important;
+    }
+    
+    /* Left arrow slides left and fades */
+    .tubelook-skip-indicator.left .tubelook-skip-arrow {
+        animation: slideLeftAndFade 0.6s ease-out forwards !important;
+    }
+    
+    /* Right arrow slides right and fades */
+    .tubelook-skip-indicator.right .tubelook-skip-arrow {
+        animation: slideRightAndFade 0.6s ease-out forwards !important;
+    }
+    
+    /* Text fades with slight delay */
+    .tubelook-skip-text {
+        animation: skipTextFadeOut 0.4s ease 0.2s forwards !important;
+    }
+    
+    /* Keyframes for skip animations */
+    @keyframes skipTextFadeIn {
+        from { 
+            opacity: 0; 
+            transform: scale(0.8); 
+        }
+        to { 
+            opacity: 1; 
+            transform: scale(1); 
+        }
+    }
+    
+    @keyframes skipTextFadeOut {
+        from { 
+            opacity: 1; 
+        }
+        to { 
+            opacity: 0; 
+        }
+    }
+    
+    @keyframes slideLeftAndFade {
+        0% {
+            transform: translateX(40px);
+            opacity: 1;
+        }
+        100% {
+            transform: translateX(-60px);
+            opacity: 0;
+        }
+    }
+    
+    @keyframes slideRightAndFade {
+        0% {
+            transform: translateX(-40px);
+            opacity: 1;
+        }
+        100% {
+            transform: translateX(60px);
+            opacity: 0;
+        }
+    }
+    
+    /* ========================================
+       5. AUTO-HIDE CONTROLS
+       ======================================== */
+    .videoPlayerContainer.controls-hidden .btnPlayPause {
+        opacity: 0 !important;
+        pointer-events: none !important;
+    }
+    
+    body.tubelook-visible-skip-buttons .videoPlayerContainer.controls-hidden .btnRewind,
+    body.tubelook-visible-skip-buttons .videoPlayerContainer.controls-hidden .btnFastForward {
+        opacity: 0 !important;
+        pointer-events: none !important;
+    }
+    
+    /* ========================================
+       5. PROGRESS BAR - LARGER HIT AREA
+       ======================================== */
+    .videoControls .videoSlider {
+        height: 8px !important;
+        margin: 12px 0 !important;
+    }
+    
+    .videoControls .videoSlider::before {
+        content: '';
+        position: absolute;
+        top: -12px;
+        bottom: -12px;
+        left: 0;
+        right: 0;
+    }
+    
+    /* ========================================
+       6. CENTER CONTROLS CONTAINER
+       ======================================== */
+    .videoPlayerContainer .centerControls {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 100% !important;
+        height: 100% !important;
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        pointer-events: none !important;
+    }
+    
+    .videoPlayerContainer .centerControls > * {
+        pointer-events: auto !important;
+    }
+    
+    /* ========================================
+       7. TOUCH-FRIENDLY ENHANCEMENTS
+       ======================================== */
+    .videoControls button {
+        min-width: 48px !important;
+        min-height: 48px !important;
+    }
+    
+    /* ========================================
+       8. ANIMATIONS
+       ======================================== */
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    .videoPlayerContainer .btnPlayPause,
+    .videoPlayerContainer .btnRewind,
+    .videoPlayerContainer .btnFastForward {
+        animation: fadeIn 0.3s ease !important;
+    }
+}
