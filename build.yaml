@@ -1,0 +1,17 @@
+---
+name: "TubeLook"
+guid: "40348b51-3327-4a00-bbd9-dd889bf60c28"
+version: "1.0.0.0"
+targetAbi: "10.11.0.0"
+framework: "net9.0"
+overview: "YouTube-style mobile video player controls for Jellyfin"
+description: >
+  Makes the fullscreen video experience on mobile devices more similar to YouTube's interface
+  with bigger centered play/pause buttons, repositioned skip controls, double-tap to skip,
+  and gesture controls.
+category: "General"
+owner: "jellyfin"
+artifacts:
+- "Jellyfin.Plugin.TubeLook.dll"
+changelog: >
+  Initial release
