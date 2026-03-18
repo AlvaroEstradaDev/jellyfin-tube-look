@@ -3,7 +3,7 @@ import json
 import sys
 import os
 import hashlib
-from datetime import datetime
+from datetime import datetime, timezone
 
 def calculate_md5(file_path):
     hash_md5 = hashlib.md5()
@@ -26,7 +26,7 @@ def update_manifest(manifest_path, version, target_abi, changelog, zip_file_path
     # E.g. https://github.com/AlvaroEstradaDev/jellyfin-tube-look/releases/download/v1.0.0/Release-...zip
     source_url = f"{base_url}/releases/download/{version}/{zip_filename}"
     checksum = calculate_md5(zip_file_path)
-    timestamp = datetime.now(datetime.UTC).strftime("%Y-%m-%d %H:%M:%S")
+    timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
     
     new_version = {
         "version": version.lstrip('v'),
