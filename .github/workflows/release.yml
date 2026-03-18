@@ -111,6 +111,7 @@ jobs:
         with:
           commit_message: "chore: update manifest.json for ${{ env.VERSION }}"
           file_pattern: 'manifest.json'
+          branch: main
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
