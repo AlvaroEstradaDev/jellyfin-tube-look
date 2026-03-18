@@ -1,7 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <JellyfinVersion Condition="'$(JellyfinVersion)' == ''">10.11.3</JellyfinVersion>
+    <JellyfinNugetVersion Condition="!$(JellyfinVersion.StartsWith('10.11'))">$(JellyfinVersion)</JellyfinNugetVersion>
+    <JellyfinNugetVersion Condition="$(JellyfinVersion.StartsWith('10.11'))">$(JellyfinVersion)</JellyfinNugetVersion>
+    <JellyfinNugetVersion Condition="$(JellyfinVersion.StartsWith('10.11.1'))">10.11.0</JellyfinNugetVersion>
+    <JellyfinNugetVersion Condition="$(JellyfinVersion.StartsWith('10.11.0'))">10.11.0</JellyfinNugetVersion>
+
     <TargetFramework>net9.0</TargetFramework>
+
     <RootNamespace>Jellyfin.Plugin.TubeLook</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -11,10 +18,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Jellyfin.Controller" Version="10.11.3" >
+    <PackageReference Include="Jellyfin.Controller" Version="$(JellyfinNugetVersion)">
       <ExcludeAssets>runtime</ExcludeAssets>
     </PackageReference>
-    <PackageReference Include="Jellyfin.Model" Version="10.11.3">
+    <PackageReference Include="Jellyfin.Model" Version="$(JellyfinNugetVersion)">
       <ExcludeAssets>runtime</ExcludeAssets>
     </PackageReference>
   </ItemGroup>
