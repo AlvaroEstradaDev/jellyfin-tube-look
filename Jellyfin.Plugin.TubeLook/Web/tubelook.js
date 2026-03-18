@@ -107,18 +107,24 @@
         centerControls.className = 'centerControls';
         
         // Move buttons to center
+        const prevBtn = container.querySelector('.btnPreviousTrack');
         const playBtn = container.querySelector('.btnPlayPause');
+        const nextBtn = container.querySelector('.btnNextTrack');
+        
         const rewindBtn = container.querySelector('.btnRewind');
         const forwardBtn = container.querySelector('.btnFastForward');
         
+        if (prevBtn) centerControls.appendChild(prevBtn.cloneNode(true));
         if (playBtn) centerControls.appendChild(playBtn.cloneNode(true));
+        if (nextBtn) centerControls.appendChild(nextBtn.cloneNode(true));
+        
         if (rewindBtn) centerControls.appendChild(rewindBtn.cloneNode(true));
         if (forwardBtn) centerControls.appendChild(forwardBtn.cloneNode(true));
         
         container.appendChild(centerControls);
         
         // Update skip button functionality
-        updateSkipButtons(container);
+        updateCenterButtons(container);
         
         // Setup auto-hide
         setupAutoHide(container);
@@ -144,10 +150,15 @@
                (navigator.maxTouchPoints > 0);
     }
 
-    function updateSkipButtons(container) {
+    function updateCenterButtons(container) {
         const video = container.querySelector('video');
         const rewindBtn = container.querySelector('.centerControls .btnRewind');
         const forwardBtn = container.querySelector('.centerControls .btnFastForward');
+        
+        const prevBtn = container.querySelector('.centerControls .btnPreviousTrack');
+        const nextBtn = container.querySelector('.centerControls .btnNextTrack');
+        const origPrevBtn = container.querySelector('.videoControls .btnPreviousTrack');
+        const origNextBtn = container.querySelector('.videoControls .btnNextTrack');
         
         if (rewindBtn && video) {
             rewindBtn.addEventListener('click', (e) => {
@@ -161,6 +172,22 @@
             forwardBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 video.currentTime += tubeLookConfig.ForwardSeconds;
+                showControls(container);
+            });
+        }
+
+        if (prevBtn && origPrevBtn) {
+            prevBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                origPrevBtn.click();
+                showControls(container);
+            });
+        }
+
+        if (nextBtn && origNextBtn) {
+            nextBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                origNextBtn.click();
                 showControls(container);
             });
         }
@@ -328,15 +355,18 @@
             
             const prefix = isRewind ? '-' : '+';
             indicatorElement.className = `tubelook-skip-indicator ${side}`;
-            indicatorElement.innerHTML = `
-                <div class="tubelook-skip-text">${prefix}${seconds}</div>
-                <svg class="tubelook-skip-arrow" viewBox="0 0 24 24">
-                    ${isRewind 
-                        ? '<path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/>'
-                        : '<path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/>'
-                    }
-                </svg>
-            `;
+            
+            if (isRewind) {
+                indicatorElement.innerHTML = `
+                    <div class="tubelook-skip-arrow">‹</div>
+                    <div class="tubelook-skip-text">${prefix}${seconds}</div>
+                `;
+            } else {
+                indicatorElement.innerHTML = `
+                    <div class="tubelook-skip-text">${prefix}${seconds}</div>
+                    <div class="tubelook-skip-arrow">›</div>
+                `;
+            }
         }
     }
 

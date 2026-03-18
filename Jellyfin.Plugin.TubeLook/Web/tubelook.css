@@ -5,11 +5,10 @@
        1. PLAY/PAUSE BUTTON - CENTER, LARGE
        ======================================== */
     .videoPlayerContainer .btnPlayPause {
-        /* Position in center */
-        position: absolute !important;
-        top: 50% !important;
-        left: 50% !important;
-        transform: translate(-50%, -50%) !important;
+        position: relative !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
         
         /* Size from config (default 90px) */
         width: var(--tubelook-play-size, 90px) !important;
@@ -25,8 +24,28 @@
         z-index: 1000 !important;
     }
     
-    .videoPlayerContainer .btnPlayPause:active {
-        transform: translate(-50%, -50%) scale(0.95) !important;
+    .videoPlayerContainer .btnPreviousTrack,
+    .videoPlayerContainer .btnNextTrack {
+        position: relative !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        
+        width: 60px !important;
+        height: 60px !important;
+        
+        background: rgba(0, 0, 0, var(--tubelook-opacity, 0.7)) !important;
+        border-radius: 50% !important;
+        border: 2px solid rgba(255, 255, 255, 0.3) !important;
+        
+        transition: opacity 0.3s ease, transform 0.2s ease !important;
+        z-index: 1000 !important;
+    }
+    
+    .videoPlayerContainer .btnPlayPause:active,
+    .videoPlayerContainer .btnPreviousTrack:active,
+    .videoPlayerContainer .btnNextTrack:active {
+        transform: scale(0.95) !important;
     }
     
     .videoPlayerContainer .btnPlayPause svg,
@@ -34,8 +53,17 @@
         font-size: calc(var(--tubelook-play-size, 90px) * 0.5) !important;
     }
     
-    /* Hide play button in bottom controls */
-    .videoControls .btnPlayPause {
+    .videoPlayerContainer .btnPreviousTrack svg,
+    .videoPlayerContainer .btnPreviousTrack .material-icons,
+    .videoPlayerContainer .btnNextTrack svg,
+    .videoPlayerContainer .btnNextTrack .material-icons {
+        font-size: 30px !important;
+    }
+    
+    /* Hide play and track buttons in bottom controls */
+    .videoControls .btnPlayPause,
+    .videoControls .btnPreviousTrack,
+    .videoControls .btnNextTrack {
         display: none !important;
     }
     
@@ -108,7 +136,7 @@
         top: 50% !important;
         transform: translateY(-50%) !important;
         display: flex !important;
-        flex-direction: column !important;
+        flex-direction: row !important;
         align-items: center !important;
         gap: 8px !important;
         z-index: 1001 !important;
@@ -116,16 +144,16 @@
     }
     
     .tubelook-skip-indicator.left {
-        left: 15% !important;
+        left: 20% !important;
     }
     
     .tubelook-skip-indicator.right {
-        right: 15% !important;
+        right: 20% !important;
     }
     
     /* Skip text (e.g., "-10" or "+30") */
     .tubelook-skip-text {
-        font-size: 56px !important;
+        font-size: 30px !important;
         font-weight: bold !important;
         color: white !important;
         text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.6) !important;
@@ -134,10 +162,11 @@
     
     /* Animated skip arrow */
     .tubelook-skip-arrow {
-        width: 80px !important;
-        height: 48px !important;
-        fill: white !important;
-        filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5)) !important;
+        font-size: 36px !important;
+        font-weight: bold !important;
+        color: white !important;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5) !important;
+        line-height: 1 !important;
     }
     
     /* Left arrow slides left and fades */
@@ -201,7 +230,9 @@
     /* ========================================
        5. AUTO-HIDE CONTROLS
        ======================================== */
-    .videoPlayerContainer.controls-hidden .btnPlayPause {
+    .videoPlayerContainer.controls-hidden .btnPlayPause,
+    .videoPlayerContainer.controls-hidden .btnPreviousTrack,
+    .videoPlayerContainer.controls-hidden .btnNextTrack {
         opacity: 0 !important;
         pointer-events: none !important;
     }
@@ -236,6 +267,7 @@
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
+        gap: 40px !important;
         width: 100% !important;
         height: 100% !important;
         position: absolute !important;
@@ -265,8 +297,34 @@
     }
     
     .videoPlayerContainer .btnPlayPause,
+    .videoPlayerContainer .btnPreviousTrack,
+    .videoPlayerContainer .btnNextTrack,
     .videoPlayerContainer .btnRewind,
     .videoPlayerContainer .btnFastForward {
         animation: fadeIn 0.3s ease !important;
+    }
+
+    /* ========================================
+       9. LEFT-ALIGN BOTTOM BAR
+       ======================================== */
+    .videoControls {
+        justify-content: flex-start !important;
+    }
+    
+    .videoControls .videoOsdPositionText,
+    .videoControls .videoOsdDurationText {
+        margin-right: 15px !important;
+    }
+    
+    /* Push setting/fullscreen to right */
+    .videoControls .osdSettingsButton,
+    .videoControls .btnVideoOsdSettings {
+        margin-left: auto !important;
+    }
+    
+    /* Ensure slider stays full width */
+    .videoControls .videoSlider {
+        width: 100% !important;
+        flex-shrink: 0 !important;
     }
 }
