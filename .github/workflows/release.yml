@@ -1,0 +1,125 @@
+name: '🚀 Build and Release Plugin'
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version_override:
+        description: 'Version to build (e.g. v1.0.0)'
+        required: true
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Get Version
+        id: get_version
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "VERSION=${{ github.event.inputs.version_override }}" >> $GITHUB_ENV
+          elif [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+          else
+            echo "VERSION=v0.0.0-dev" >> $GITHUB_ENV
+          fi
+          
+          # Get commit message for changelog
+          echo "CHANGELOG<<EOF" >> $GITHUB_ENV
+          git log -1 --pretty=%B >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Build and Package Plugin
+        run: |
+          JELLYFIN_VERSIONS=("10.11.3" "10.11.4" "10.11.5" "10.11.6")
+          TARGET_FW="net9.0"
+          
+          mkdir -p __release_artifacts
+          
+          for JF_VER in "${JELLYFIN_VERSIONS[@]}"; do
+            echo "========================================================"
+            echo "Building plugin for Jellyfin $JF_VER..."
+            echo "========================================================"
+            
+            ZIP_NAME="Release-${JF_VER}.zip"
+            STAGING_DIR="/tmp/plugin_release_${JF_VER}"
+            
+            # Clean previous builds to avoid mixing dependencies
+            rm -rf ./Jellyfin.Plugin.TubeLook/bin ./Jellyfin.Plugin.TubeLook/obj
+            
+            # Publish
+            dotnet publish --configuration Release -p:JellyfinVersion="${JF_VER}"
+            
+            echo "Creating staging directory for $JF_VER..."
+            rm -rf "$STAGING_DIR"
+            mkdir -p "$STAGING_DIR"
+            
+            # Output framework directory based on Jellyfin target
+            PUBLISH_DIR="./Jellyfin.Plugin.TubeLook/bin/Release/${TARGET_FW}/publish"
+            
+            # Fallback to standard bin directory
+            if [ ! -f "$PUBLISH_DIR/Jellyfin.Plugin.TubeLook.dll" ]; then
+                PUBLISH_DIR="./Jellyfin.Plugin.TubeLook/bin/Release/${TARGET_FW}"
+            fi
+            
+            echo "Copying output files to staging..."
+            cp "$PUBLISH_DIR/Jellyfin.Plugin.TubeLook.dll" "$STAGING_DIR/"
+            cp "$PUBLISH_DIR/Jellyfin.Plugin.TubeLook.pdb" "$STAGING_DIR/"
+            cp "$PUBLISH_DIR/Jellyfin.Plugin.TubeLook.deps.json" "$STAGING_DIR/"
+            if [ -f "logo.png" ]; then
+              cp logo.png "$STAGING_DIR/"
+            fi
+            
+            echo "Creating zip archive $ZIP_NAME..."
+            pushd "$STAGING_DIR"
+            zip -r "$ZIP_NAME" ./*
+            popd
+            
+            mv "$STAGING_DIR/$ZIP_NAME" ./__release_artifacts/
+            
+            # Target ABI is typically 10.11.0.0 for all 10.11.x minor versions
+            TARGET_ABI="10.11.0.0"
+            
+            echo "Updating manifest.json with $ZIP_NAME details..."
+            python3 scripts/update_manifest.py manifest.json "$VERSION" "$TARGET_ABI" "$CHANGELOG" "./__release_artifacts/$ZIP_NAME" "${{ github.server_url }}/${{ github.repository }}"
+            
+            echo "Cleaning up staging directory for $JF_VER..."
+            rm -rf "$STAGING_DIR"
+          done
+
+      - name: Commit and Push Updated Manifest
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: update manifest.json for ${{ env.VERSION }}"
+          file_pattern: 'manifest.json'
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.VERSION }}
+          name: Release ${{ env.VERSION }}
+          body: ${{ env.CHANGELOG }}
+          draft: false
+          prerelease: false
+          files: ./__release_artifacts/*.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

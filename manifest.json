@@ -1,0 +1,12 @@
+[
+    {
+        "guid": "40348b51-3327-4a00-bbd9-dd889bf60c28",
+        "name": "TubeLook",
+        "overview": "YouTube-style mobile video player controls for Jellyfin.",
+        "description": "Makes the fullscreen video experience on mobile devices more similar to YouTube's interface with bigger centered play/pause buttons, repositioned skip controls, double-tap to skip, and gesture controls.",
+        "owner": "AlvaroEstradaDev",
+        "category": "General",
+        "imageUrl": "https://raw.githubusercontent.com/AlvaroEstradaDev/jellyfin-tube-look/main/logo.png",
+        "versions": []
+    }
+]
