@@ -7,11 +7,24 @@ on:
   workflow_dispatch:
     inputs:
       version_override:
-        description: 'Version to build (e.g. v1.0.0)'
+        description: 'Version to build (e.g. v1.0.3.0)'
         required: true
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+      - name: Verify Build
+        run: dotnet build -c Release
+
   build-and-release:
+    needs: build
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -36,12 +49,20 @@ jobs:
         id: get_version
         run: |
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            echo "VERSION=${{ github.event.inputs.version_override }}" >> $GITHUB_ENV
+            LOCAL_VERSION="${{ github.event.inputs.version_override }}"
           elif [[ "${{ github.ref }}" == refs/tags/* ]]; then
-            echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+            LOCAL_VERSION="${GITHUB_REF#refs/tags/}"
           else
-            echo "VERSION=v0.0.0-dev" >> $GITHUB_ENV
+            LOCAL_VERSION="v0.0.0-dev"
           fi
+          
+          # Enforce 4-digit version string
+          if ! [[ "$LOCAL_VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]] && [[ "$LOCAL_VERSION" != "v0.0.0-dev" ]]; then
+            echo "Error: Version must be in format v1.2.3.4 (got $LOCAL_VERSION)"
+            exit 1
+          fi
+          
+          echo "VERSION=$LOCAL_VERSION" >> $GITHUB_ENV
           
           # Get commit message for changelog
           echo "CHANGELOG<<EOF" >> $GITHUB_ENV

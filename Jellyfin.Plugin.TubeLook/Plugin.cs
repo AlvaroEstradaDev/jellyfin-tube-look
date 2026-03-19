@@ -45,6 +45,16 @@ public class Plugin : BasePlugin<PluginConfiguration>, IHasWebPages
             {
                 Name = Name,
                 EmbeddedResourcePath = string.Format(CultureInfo.InvariantCulture, "{0}.Configuration.configPage.html", GetType().Namespace)
+            },
+            new PluginPageInfo
+            {
+                Name = "tubelook.js",
+                EmbeddedResourcePath = string.Format(CultureInfo.InvariantCulture, "{0}.Web.tubelook.js", GetType().Namespace)
+            },
+            new PluginPageInfo
+            {
+                Name = "tubelook.css",
+                EmbeddedResourcePath = string.Format(CultureInfo.InvariantCulture, "{0}.Web.tubelook.css", GetType().Namespace)
             }
         ];
     }
