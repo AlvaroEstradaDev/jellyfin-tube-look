@@ -7,6 +7,15 @@
         "owner": "AlvaroEstradaDev",
         "category": "General",
         "imageUrl": "https://raw.githubusercontent.com/AlvaroEstradaDev/jellyfin-tube-look/main/logo.png",
-        "versions": []
+        "versions": [
+            {
+                "version": "1.0.3.0",
+                "changelog": "fix: enforce 4-digit version strings and clean manifest\n",
+                "targetAbi": "10.11.0.0",
+                "sourceUrl": "https://github.com/AlvaroEstradaDev/jellyfin-tube-look/releases/download/v1.0.3.0/Release-10.11.6.zip",
+                "checksum": "96494130630d49a506dd4687c3a3f88a",
+                "timestamp": "2026-03-19 02:55:00"
+            }
+        ]
     }
 ]
