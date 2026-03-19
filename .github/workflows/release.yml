@@ -64,10 +64,21 @@ jobs:
           
           echo "VERSION=$LOCAL_VERSION" >> $GITHUB_ENV
           
-          # Get commit message for changelog
+          # Generate rich changelog from conventional commits
           echo "CHANGELOG<<EOF" >> $GITHUB_ENV
-          git log -1 --pretty=%B >> $GITHUB_ENV
+          PREV_TAG=$(git describe --tags --abbrev=0 "${LOCAL_VERSION}^" 2>/dev/null || echo "")
+          if [ -n "$PREV_TAG" ]; then
+            git log ${PREV_TAG}..${LOCAL_VERSION} --pretty=format:"- %s" | grep -vEi "^- (chore|ci|build|test):" >> $GITHUB_ENV || true
+          else
+            git log -10 --pretty=format:"- %s" | grep -vEi "^- (chore|ci|build|test):" >> $GITHUB_ENV || true
+          fi
+          echo "" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
+          
+          # Auto-update Directory.Build.props version attributes with the clean tag
+          sed -i "s/<Version>.*<\/Version>/<Version>${LOCAL_VERSION#v}<\/Version>/g" Directory.Build.props
+          sed -i "s/<AssemblyVersion>.*<\/AssemblyVersion>/<AssemblyVersion>${LOCAL_VERSION#v}<\/AssemblyVersion>/g" Directory.Build.props
+          sed -i "s/<FileVersion>.*<\/FileVersion>/<FileVersion>${LOCAL_VERSION#v}<\/FileVersion>/g" Directory.Build.props
 
       - name: Build and Package Plugin
         run: |
@@ -130,8 +141,8 @@ jobs:
       - name: Commit and Push Updated Manifest
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "chore: update manifest.json for ${{ env.VERSION }}"
-          file_pattern: 'manifest.json'
+          commit_message: "chore: update manifest.json and version for ${{ env.VERSION }}"
+          file_pattern: 'manifest.json Directory.Build.props'
           branch: main
 
       - name: Create Release

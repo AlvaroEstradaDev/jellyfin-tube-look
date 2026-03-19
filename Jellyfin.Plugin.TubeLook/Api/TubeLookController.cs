@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using Jellyfin.Plugin.TubeLook.Configuration;
 using MediaBrowser.Controller.Library;
@@ -121,13 +122,21 @@ namespace Jellyfin.Plugin.TubeLook.Api
             }
 
             var pluginConfig = Plugin.Instance!.Configuration;
+            var existingEntry = pluginConfig.UserConfigurations.FirstOrDefault(e => e.UserId == userId);
 
-            if (!pluginConfig.UserConfigurations.ContainsKey(userId))
+            if (existingEntry != null)
             {
-                pluginConfig.UserConfigurations[userId] = new UserConfiguration();
+                existingEntry.Config = config;
+            }
+            else
+            {
+                pluginConfig.UserConfigurations.Add(new UserConfigurationEntry
+                {
+                    UserId = userId,
+                    Config = config
+                });
             }
 
-            pluginConfig.UserConfigurations[userId] = config;
             Plugin.Instance.SaveConfiguration();
 
             return Ok();
@@ -139,13 +148,17 @@ namespace Jellyfin.Plugin.TubeLook.Api
             T defaultValue)
             where T : struct
         {
-            if (!string.IsNullOrEmpty(userId) && Plugin.Instance!.Configuration.UserConfigurations
-                .TryGetValue(userId, out var userConfig))
+            if (!string.IsNullOrEmpty(userId))
             {
-                var value = selector(userConfig);
-                if (value.HasValue)
+                var entry = Plugin.Instance!.Configuration.UserConfigurations
+                    .FirstOrDefault(e => e.UserId == userId);
+                if (entry?.Config != null)
                 {
-                    return value.Value;
+                    var value = selector(entry.Config);
+                    if (value.HasValue)
+                    {
+                        return value.Value;
+                    }
                 }
             }
 

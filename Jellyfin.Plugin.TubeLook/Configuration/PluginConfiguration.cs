@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using MediaBrowser.Model.Plugins;
 
 namespace Jellyfin.Plugin.TubeLook.Configuration;
@@ -63,5 +64,5 @@ public class PluginConfiguration : BasePluginConfiguration
     /// <summary>
     /// Gets the user configurations.
     /// </summary>
-    public Dictionary<string, UserConfiguration> UserConfigurations { get; } = new();
+    public Collection<UserConfigurationEntry> UserConfigurations { get; } = new();
 }
